@@ -18,6 +18,22 @@
       "anchor": "bottom center of standing figure, scene left 44%, bottom 3%",
       "source": "Generated with OpenAI image generation for this project on 2026-11-08",
       "reuse": "Project prototype asset; replace with aligned expression and mouth sets"
+    },
+    {
+      "id": "photo-307",
+      "file": "photo.jpg",
+      "dimensions": [1536, 1024],
+      "role": "inspectable clue photograph",
+      "anchor": "center of clue panel",
+      "source": "Generated with OpenAI image generation for this project on 2026-11-08",
+      "reuse": "Project prototype asset; replace before formal visual acceptance"
+    },
+    {
+      "id": "mira-placeholder-voice",
+      "files": "voice/*.m4a",
+      "role": "pre-scripted Chinese dialogue placeholder",
+      "source": "Synthesized locally with the macOS Tingting voice on 2026-11-08",
+      "reuse": "Project prototype audio; replace with approved recorded dialogue"
     }
   ]
 }

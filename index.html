@@ -13,6 +13,7 @@
     <div class="stage" id="stage" aria-label="深夜酒店房间">
       <div class="world" id="world">
         <img class="room" src="./assets/room.png" alt="" draggable="false">
+        <div class="door-reveal" aria-hidden="true"><div class="door-leaf"></div></div>
         <div class="rain" aria-hidden="true"></div>
         <img class="mira" id="mira" src="./assets/mira.png" alt="" draggable="false">
         <button class="hotspot window" data-action="WINDOW" aria-label="观察窗户"><span>窗户 <small>观察窗外</small></span></button>
@@ -22,6 +23,7 @@
       <div class="vignette" aria-hidden="true"></div>
       <header class="hud" id="hud" hidden>
         <div class="hud-brand"><span class="brand-mark">MH</span><span>午夜酒店 <small>ROOM 307</small></span></div>
+        <div class="objective" id="objective"></div>
         <div class="hud-controls">
           <button class="icon-button" id="muteButton" aria-label="静音" title="静音">♪</button>
           <button class="icon-button" id="pauseButton" aria-label="暂停" title="暂停">Ⅱ</button>
@@ -50,6 +52,7 @@
         <section class="modal story-panel" id="storyPanel" aria-labelledby="panelTitle">
           <p class="eyebrow" id="panelEyebrow"></p>
           <h2 id="panelTitle"></h2>
+          <div class="panel-visual" id="panelVisual"></div>
           <p id="panelBody"></p>
           <div class="panel-actions" id="panelActions"></div>
         </section>

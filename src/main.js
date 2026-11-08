@@ -13,13 +13,23 @@ let masterGain;
 let rainSource;
 let lastFrame = performance.now();
 let renderedPanel = null;
+let currentVoiceId = null;
+const voice = new Audio();
+voice.preload = 'auto';
 
 function dispatch(action) {
   const previous = state;
   state = update(state, action);
   if (!previous.knockHeard && state.knockHeard) playKnock();
-  if (action.type === 'PAUSE') audioContext?.suspend();
-  if (action.type === 'RESUME' || action.type === 'RESTART') audioContext?.resume();
+  if (action.type === 'PAUSE') {
+    audioContext?.suspend();
+    voice.pause();
+  }
+  if (action.type === 'RESUME' || action.type === 'RESTART') {
+    audioContext?.resume();
+    if (action.type === 'RESUME' && state.lineId) voice.play().catch(() => {});
+    if (action.type === 'RESTART') currentVoiceId = null;
+  }
   render();
 }
 
@@ -42,6 +52,7 @@ async function begin() {
     settingsOpen = false;
     confirmOpen = false;
     startAudio();
+    currentVoiceId = null;
     dispatch({ type: 'START' });
   } catch {
     $('#assetStatus').textContent = '场景素材加载失败。请检查网络或文件后重试。';
@@ -104,9 +115,20 @@ function playKnock() {
 
 function updateVolume() {
   if (masterGain) masterGain.gain.value = muted ? 0 : Number($('#volume').value) / 100;
+  voice.muted = muted;
   $('#volumeValue').textContent = `${$('#volume').value}%`;
   $('#muteButton').textContent = muted ? '×' : '♪';
   $('#muteButton').setAttribute('aria-label', muted ? '取消静音' : '静音');
+}
+
+function syncVoice() {
+  if (currentVoiceId === state.lineId) return;
+  currentVoiceId = state.lineId;
+  voice.pause();
+  if (!state.lineId) return;
+  voice.src = `./assets/voice/${state.lineId}.m4a`;
+  voice.currentTime = 0;
+  voice.play().catch(() => {});
 }
 
 function addAction(container, label, handler, primary = false) {
@@ -124,24 +146,41 @@ function renderPanel() {
     renderedPanel = null;
     return;
   }
-  if (renderedPanel === state.panel) return;
-  renderedPanel = state.panel;
+  const panelKey = state.panel === 'photo' ? `photo:${state.photoMessageRead}` : state.panel;
+  if (renderedPanel === panelKey) return;
+  renderedPanel = panelKey;
   const actions = $('#panelActions');
+  const visual = $('#panelVisual');
   actions.replaceChildren();
+  visual.replaceChildren();
+  visual.className = 'panel-visual';
   if (state.panel === 'photo') {
     $('#panelEyebrow').textContent = '线索 · 旧照片';
-    $('#panelTitle').textContent = '七年前的合影';
-    $('#panelBody').textContent = '照片背后写着“307，别相信敲门的人”。Mira 站在画面边缘，像是早就知道你会找到它。';
-    addAction(actions, '收起照片', () => dispatch({ type: 'CLOSE_PANEL' }), true);
+    $('#panelTitle').textContent = state.photoMessageRead ? '照片背面' : '七年前的合影';
+    if (state.photoMessageRead) {
+      visual.classList.add('photo-back');
+      visual.textContent = '307，别相信敲门的人。';
+      $('#panelBody').textContent = '你翻到背面，墨迹像是刚写下不久。Mira 看见这行字时，脸色变了。';
+    } else {
+      visual.classList.add('photo-front');
+      const image = document.createElement('img');
+      image.src = './assets/photo.jpg';
+      image.alt = '七年前的酒店员工合影，Mira 站在最右侧';
+      visual.append(image);
+      $('#panelBody').textContent = 'Mira 站在合影最右边。照片边角有反复翻动的痕迹。';
+      addAction(actions, '翻看背面', () => dispatch({ type: 'FLIP_PHOTO' }), true);
+    }
+    addAction(actions, '收起照片', () => dispatch({ type: 'CLOSE_PANEL' }), state.photoMessageRead);
   } else if (state.panel === 'window') {
     $('#panelEyebrow').textContent = '观察 · 雨夜';
-    $('#panelTitle').textContent = '窗外没有灯';
-    $('#panelBody').textContent = '雨水沿玻璃滑下。对面酒店的窗户一片漆黑，只有走廊尽头偶尔亮起微弱的光。';
+    $('#panelTitle').textContent = '楼下的人影';
+    visual.classList.add('window-view');
+    $('#panelBody').textContent = '你擦去窗上的水雾。一个穿雨衣的人站在楼下，正抬头望向 307 房间。';
     addAction(actions, '回到房间', () => dispatch({ type: 'CLOSE_PANEL' }), true);
   } else {
     $('#panelEyebrow').textContent = '选择 · 房门';
     $('#panelTitle').textContent = '门外有人';
-    $('#panelBody').textContent = state.photoInspected ? '你知道照片上的警告，也听见了门外的人。现在怎么办？' : '敲门声停了一瞬。Mira 紧张地看着你。';
+    $('#panelBody').textContent = state.photoMessageRead ? '你知道照片背面的警告，也听见了门外的人。现在怎么办？' : '敲门声停了一瞬。Mira 紧张地看着你。';
     addAction(actions, '开门', () => dispatch({ type: 'DECIDE', choice: 'open' }), true);
     addAction(actions, '暂不开门', () => dispatch({ type: 'DECIDE', choice: 'wait' }));
     addAction(actions, '再想想', () => dispatch({ type: 'CLOSE_PANEL' }));
@@ -149,9 +188,15 @@ function renderPanel() {
 }
 
 function render() {
+  for (const phase of ['title', 'intro', 'explore', 'knock', 'resolution', 'ending']) stage.classList.toggle(`phase-${phase}`, state.phase === phase);
+  stage.classList.toggle('ending-open', state.ending === 'open');
+  stage.classList.toggle('ending-wait', state.ending === 'wait');
+  stage.classList.toggle('paused', state.paused);
+  stage.classList.toggle('panel-open', Boolean(state.panel) && !state.paused);
   stage.classList.toggle('reduced-motion', $('#reducedMotion').checked);
   $('#titleScreen').hidden = state.started;
   $('#hud').hidden = !state.started;
+  $('#objective').textContent = state.phase === 'explore' ? '观察房间 · 寻找线索' : state.phase === 'knock' ? '有人敲门 · 检查房门' : '';
   $('#interactionHint').hidden = state.phase !== 'explore' || state.panel !== null || state.paused;
   $('#subtitle').hidden = !state.started || !state.line || state.paused || state.phase === 'ending';
   $('#subtitleSpeaker').textContent = state.speaker;
@@ -159,8 +204,9 @@ function render() {
   $('#mira').className = `mira ${state.mood}`;
   for (const hotspot of document.querySelectorAll('.hotspot')) {
     hotspot.disabled = !['explore', 'knock'].includes(state.phase) || state.paused || Boolean(state.panel);
-    hotspot.hidden = !state.started || state.phase === 'ending';
+    hotspot.hidden = !state.started || ['resolution', 'ending'].includes(state.phase);
   }
+  syncVoice();
   renderPanel();
   $('#pauseLayer').hidden = !(state.paused || settingsOpen) || confirmOpen;
   $('#pauseTitle').textContent = state.started ? '暂停' : '设置';
@@ -179,12 +225,10 @@ function frame(time) {
   lastFrame = time;
   if (state.started && !state.paused && state.phase !== 'ending') {
     const next = update(state, { type: 'TICK', seconds });
-    if (next !== state) {
-      const knocked = !state.knockHeard && next.knockHeard;
-      state = next;
-      if (knocked) playKnock();
-      render();
-    }
+    const previous = state;
+    state = next;
+    if (!previous.knockHeard && next.knockHeard) playKnock();
+    if (previous.phase !== next.phase || previous.lineId !== next.lineId || previous.line !== next.line) render();
   }
   requestAnimationFrame(frame);
 }
