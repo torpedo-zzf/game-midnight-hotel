@@ -1,0 +1,23 @@
+{
+  "version": "m1-prototype-0.1",
+  "assets": [
+    {
+      "id": "room-307",
+      "file": "room.png",
+      "dimensions": [1672, 941],
+      "role": "background",
+      "anchor": "full stage, 16:9",
+      "source": "Generated with OpenAI image generation for this project on 2026-11-08",
+      "reuse": "Project prototype asset; replace before formal visual acceptance"
+    },
+    {
+      "id": "mira-neutral",
+      "file": "mira.png",
+      "dimensions": [1024, 1536],
+      "role": "character cutout",
+      "anchor": "bottom center of standing figure, scene left 44%, bottom 3%",
+      "source": "Generated with OpenAI image generation for this project on 2026-11-08",
+      "reuse": "Project prototype asset; replace with aligned expression and mouth sets"
+    }
+  ]
+}

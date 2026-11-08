@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1017">
+  <meta name="description" content="午夜酒店：第一人称悬疑互动电影视觉原型。">
+  <title>午夜酒店 · 视觉原型</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="game-shell">
+    <div class="stage" id="stage" aria-label="深夜酒店房间">
+      <div class="world" id="world">
+        <img class="room" src="./assets/room.png" alt="" draggable="false">
+        <div class="rain" aria-hidden="true"></div>
+        <img class="mira" id="mira" src="./assets/mira.png" alt="" draggable="false">
+        <button class="hotspot window" data-action="WINDOW" aria-label="观察窗户"><span>窗户 <small>观察窗外</small></span></button>
+        <button class="hotspot photo" data-action="PHOTO" aria-label="查看照片"><span>照片 <small>查看线索</small></span></button>
+        <button class="hotspot door" data-action="DOOR" aria-label="检查房门"><span>房门 <small>检查房门</small></span></button>
+      </div>
+      <div class="vignette" aria-hidden="true"></div>
+      <header class="hud" id="hud" hidden>
+        <div class="hud-brand"><span class="brand-mark">MH</span><span>午夜酒店 <small>ROOM 307</small></span></div>
+        <div class="hud-controls">
+          <button class="icon-button" id="muteButton" aria-label="静音" title="静音">♪</button>
+          <button class="icon-button" id="pauseButton" aria-label="暂停" title="暂停">Ⅱ</button>
+        </div>
+      </header>
+      <div class="interaction-hint" id="interactionHint" hidden>移动鼠标观察房间，选择发光的位置进行互动</div>
+      <div class="subtitle" id="subtitle" role="status" aria-live="polite" hidden>
+        <span class="subtitle-speaker" id="subtitleSpeaker"></span>
+        <span class="subtitle-line" id="subtitleLine"></span>
+      </div>
+      <div class="overlay title-screen" id="titleScreen">
+        <div class="title-content">
+          <p class="eyebrow">一间房 · 一个秘密 · 一次选择</p>
+          <h1>午夜酒店</h1>
+          <p class="title-description">雨夜的 307 房间。她说，千万不要开门。</p>
+          <div class="title-actions">
+            <button class="primary-button" id="startButton">开始体验 <span aria-hidden="true">→</span></button>
+            <button class="text-button" id="titleSettingsButton">设置</button>
+          </div>
+          <p class="title-note">桌面浏览器原型 · 建议使用耳机</p>
+          <p class="asset-status" id="assetStatus" role="status" hidden></p>
+        </div>
+        <div class="title-number" aria-hidden="true">307</div>
+      </div>
+      <div class="overlay modal-layer" id="panelLayer" hidden>
+        <section class="modal story-panel" id="storyPanel" aria-labelledby="panelTitle">
+          <p class="eyebrow" id="panelEyebrow"></p>
+          <h2 id="panelTitle"></h2>
+          <p id="panelBody"></p>
+          <div class="panel-actions" id="panelActions"></div>
+        </section>
+      </div>
+      <div class="overlay modal-layer" id="pauseLayer" hidden>
+        <section class="modal pause-panel" aria-labelledby="pauseTitle">
+          <p class="eyebrow">体验已暂停</p>
+          <h2 id="pauseTitle">暂停</h2>
+          <div class="settings-row"><label for="volume">环境音量</label><input id="volume" type="range" min="0" max="100" value="30"><output id="volumeValue">30%</output></div>
+          <div class="settings-row"><label for="subtitleSize">字幕大小</label><input id="subtitleSize" type="range" min="16" max="28" value="20"><output id="subtitleSizeValue">20</output></div>
+          <label class="check-row"><input id="reducedMotion" type="checkbox"> 减少动态效果</label>
+          <div class="panel-actions">
+            <button class="primary-button" id="resumeButton">继续体验</button>
+            <button class="secondary-button" id="restartButton">重新开始</button>
+          </div>
+        </section>
+      </div>
+      <div class="overlay modal-layer" id="confirmLayer" hidden>
+        <section class="modal confirm-panel" role="alertdialog" aria-labelledby="confirmTitle" aria-describedby="confirmBody">
+          <h2 id="confirmTitle">重新开始？</h2>
+          <p id="confirmBody">本轮已发现的线索和选择会被清除。</p>
+          <div class="panel-actions"><button class="secondary-button" id="cancelRestartButton">返回</button><button class="primary-button" id="confirmRestartButton">确认重来</button></div>
+        </section>
+      </div>
+      <div class="overlay modal-layer" id="endingLayer" hidden>
+        <section class="modal ending-panel" aria-labelledby="endingTitle">
+          <p class="eyebrow">本轮体验结束</p>
+          <h2 id="endingTitle"></h2>
+          <p id="endingBody"></p>
+          <div class="panel-actions"><button class="primary-button" id="endingRestartButton">再次体验</button></div>
+        </section>
+      </div>
+    </div>
+    <p class="keyboard-help">鼠标移动观察 · Tab 选择热点 · Enter 互动 · Esc 暂停</p>
+  </main>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
