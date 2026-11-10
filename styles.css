@@ -99,3 +99,5 @@ h1{font-size:clamp(44px,6.2vw,100px);letter-spacing:.18em;margin:0 0 8px;text-sh
 @keyframes recoil{35%{transform:translateX(-8px) rotate(-1deg)}100%{transform:translateX(-6px)}}
 @keyframes pulse{50%{opacity:.55;box-shadow:0 0 0 10px #e6b66b18,0 0 25px 5px #eec48a55}}
 @media(max-width:700px){.game-shell{padding:0;gap:0;min-height:100dvh}.stage{width:100vw;max-height:100dvh}.keyboard-help{display:none}.mira-rig{height:69%;left:43%}.hotspot span{display:none}.title-screen{padding:8%}.title-description{margin-bottom:20px}.title-note{display:none}.subtitle{bottom:2%;min-height:48px;width:94%;padding:5px 10px}.subtitle-line{font-size:min(var(--subtitle-size,20px),14px)}.subtitle-speaker{font-size:9px}.hud{top:2%}.interaction-hint{top:14%}.modal{padding:20px}}
+@media(max-height:500px) and (orientation:landscape){.game-shell{min-height:100dvh;padding:0;gap:0}.stage{width:min(100vw,calc(100dvh*1672/941));max-height:100dvh}.keyboard-help{display:none}}
+@media(pointer:coarse){.keyboard-help{display:none}}
