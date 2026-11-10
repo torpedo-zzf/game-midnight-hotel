@@ -3,7 +3,7 @@ import { initialState, update } from './story.js';
 const $ = (selector) => document.querySelector(selector);
 const stage = $('#stage');
 const startButton = $('#startButton');
-const assets = ['./assets/room.png', './assets/mira.png'];
+const assets = ['./assets/room.png', './assets/mira.png', './assets/mira-tense.png', './assets/mira-surprised.png', './assets/mira-blink.png', './assets/mira-speaking.png'];
 let state = initialState();
 let settingsOpen = false;
 let confirmOpen = false;
@@ -11,11 +11,28 @@ let muted = false;
 let audioContext;
 let masterGain;
 let rainSource;
+let voiceAnalyser;
+let voiceGain;
+let voiceSamples;
 let lastFrame = performance.now();
 let renderedPanel = null;
 let currentVoiceId = null;
 const voice = new Audio();
 voice.preload = 'auto';
+const blinkGaps = [3.3, 5.8, 4.1, 6.6, 3.7, 5.1];
+let blinkIndex = 0;
+let nextBlinkAt = blinkGaps[0];
+let blinkUntil = -1;
+let mouthOpen = false;
+let mouthChangedAt = 0;
+
+function resetCharacter() {
+  blinkIndex = 0;
+  nextBlinkAt = blinkGaps[0];
+  blinkUntil = -1;
+  mouthOpen = false;
+  mouthChangedAt = 0;
+}
 
 function dispatch(action) {
   const previous = state;
@@ -30,6 +47,7 @@ function dispatch(action) {
     if (action.type === 'RESUME' && state.lineId) voice.play().catch(() => {});
     if (action.type === 'RESTART') currentVoiceId = null;
   }
+  if (action.type === 'START' || action.type === 'RESTART') resetCharacter();
   render();
 }
 
@@ -64,6 +82,15 @@ async function begin() {
 function startAudio() {
   try {
     audioContext ||= new AudioContext();
+    if (!voiceAnalyser) {
+      voiceAnalyser = audioContext.createAnalyser();
+      voiceAnalyser.fftSize = 512;
+      voiceSamples = new Uint8Array(voiceAnalyser.fftSize);
+      voiceGain = audioContext.createGain();
+      audioContext.createMediaElementSource(voice).connect(voiceAnalyser);
+      voiceAnalyser.connect(voiceGain);
+      voiceGain.connect(audioContext.destination);
+    }
     if (!masterGain) {
       masterGain = audioContext.createGain();
       masterGain.connect(audioContext.destination);
@@ -115,6 +142,7 @@ function playKnock() {
 
 function updateVolume() {
   if (masterGain) masterGain.gain.value = muted ? 0 : Number($('#volume').value) / 100;
+  if (voiceGain) voiceGain.gain.value = muted ? 0 : Number($('#volume').value) / 100;
   voice.muted = muted;
   $('#volumeValue').textContent = `${$('#volume').value}%`;
   $('#muteButton').textContent = muted ? '×' : '♪';
@@ -129,6 +157,34 @@ function syncVoice() {
   voice.src = `./assets/voice/${state.lineId}.m4a`;
   voice.currentTime = 0;
   voice.play().catch(() => {});
+}
+
+function renderCharacterFrame() {
+  if (!state.started || state.paused) return;
+  if (state.phase !== 'ending' && state.elapsed >= nextBlinkAt) {
+    blinkUntil = state.elapsed + .16;
+    blinkIndex += 1;
+    nextBlinkAt = state.elapsed + blinkGaps[blinkIndex % blinkGaps.length];
+  }
+  $('#miraBlink').classList.toggle('visible', state.mood === 'calm' && state.phase !== 'ending' && state.elapsed < blinkUntil);
+  const canSpeak = state.mood !== 'surprised' && state.lineId && !voice.paused && !voice.ended;
+  let shouldOpen = false;
+  if (canSpeak) {
+    if (!muted && voiceAnalyser && audioContext?.state === 'running') {
+      voiceAnalyser.getByteTimeDomainData(voiceSamples);
+      let energy = 0;
+      for (const sample of voiceSamples) energy += ((sample - 128) / 128) ** 2;
+      const level = Math.sqrt(energy / voiceSamples.length);
+      shouldOpen = level > (mouthOpen ? .013 : .02);
+    } else {
+      shouldOpen = Math.sin(voice.currentTime * 11) > .15;
+    }
+  }
+  if (!canSpeak || (shouldOpen !== mouthOpen && state.elapsed - mouthChangedAt >= .09)) {
+    mouthOpen = Boolean(canSpeak && shouldOpen);
+    mouthChangedAt = state.elapsed;
+  }
+  $('#miraMouth').classList.toggle('visible', mouthOpen);
 }
 
 function addAction(container, label, handler, primary = false) {
@@ -201,7 +257,9 @@ function render() {
   $('#subtitle').hidden = !state.started || !state.line || state.paused || state.phase === 'ending';
   $('#subtitleSpeaker').textContent = state.speaker;
   $('#subtitleLine').textContent = state.line;
-  $('#mira').className = `mira ${state.mood}`;
+  $('#miraRig').className = `mira-rig ${state.mood}`;
+  $('#miraTense').classList.toggle('visible', state.mood === 'tense');
+  $('#miraSurprised').classList.toggle('visible', state.mood === 'surprised');
   for (const hotspot of document.querySelectorAll('.hotspot')) {
     hotspot.disabled = !['explore', 'knock'].includes(state.phase) || state.paused || Boolean(state.panel);
     hotspot.hidden = !state.started || ['resolution', 'ending'].includes(state.phase);
@@ -230,6 +288,7 @@ function frame(time) {
     if (!previous.knockHeard && next.knockHeard) playKnock();
     if (previous.phase !== next.phase || previous.lineId !== next.lineId || previous.line !== next.line) render();
   }
+  renderCharacterFrame();
   requestAnimationFrame(frame);
 }
 

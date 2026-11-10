@@ -1,5 +1,5 @@
 {
-  "version": "m1-prototype-0.1",
+  "version": "m1-prototype-0.2",
   "assets": [
     {
       "id": "room-307",
@@ -17,7 +17,43 @@
       "role": "character cutout",
       "anchor": "bottom center of standing figure, scene left 44%, bottom 3%",
       "source": "Generated with OpenAI image generation for this project on 2026-11-08",
-      "reuse": "Project prototype asset; replace with aligned expression and mouth sets"
+      "reuse": "Project prototype base cutout; used as fixed body and face anchor"
+    },
+    {
+      "id": "mira-tense-face",
+      "file": "mira-tense.png",
+      "dimensions": [1024, 1536],
+      "role": "masked tense facial expression",
+      "anchor": "same full-body coordinates as mira-neutral; face region only is displayed",
+      "source": "Edited from mira-neutral with OpenAI image generation for this project on 2026-11-08",
+      "reuse": "Project prototype face variant; needs visual continuity review"
+    },
+    {
+      "id": "mira-surprised-face",
+      "file": "mira-surprised.png",
+      "dimensions": [1024, 1536],
+      "role": "masked surprised facial expression",
+      "anchor": "same full-body coordinates as mira-neutral; face region only is displayed",
+      "source": "Edited from mira-neutral with OpenAI image generation for this project on 2026-11-08",
+      "reuse": "Project prototype face variant; needs visual continuity review"
+    },
+    {
+      "id": "mira-blink-eyes",
+      "file": "mira-blink.png",
+      "dimensions": [1024, 1536],
+      "role": "masked closed-eye state",
+      "anchor": "same full-body coordinates as mira-neutral; eye region only is displayed",
+      "source": "Edited from mira-neutral with OpenAI image generation for this project on 2026-11-08",
+      "reuse": "Project prototype eye state; needs visual continuity review"
+    },
+    {
+      "id": "mira-speaking-mouth",
+      "file": "mira-speaking.png",
+      "dimensions": [1024, 1536],
+      "role": "masked open-mouth state",
+      "anchor": "same full-body coordinates as mira-neutral; mouth region only is displayed",
+      "source": "Edited from mira-neutral with OpenAI image generation for this project on 2026-11-08",
+      "reuse": "Project prototype mouth state; amplitude-driven, not phoneme-synced"
     },
     {
       "id": "photo-307",

@@ -15,7 +15,13 @@
         <img class="room" src="./assets/room.png" alt="" draggable="false">
         <div class="door-reveal" aria-hidden="true"><div class="door-leaf"></div></div>
         <div class="rain" aria-hidden="true"></div>
-        <img class="mira" id="mira" src="./assets/mira.png" alt="" draggable="false">
+        <div class="mira-rig" id="miraRig" aria-hidden="true">
+          <img class="mira-layer mira-base" src="./assets/mira.png" alt="" draggable="false">
+          <img class="mira-layer mira-face" id="miraTense" src="./assets/mira-tense.png" alt="" draggable="false">
+          <img class="mira-layer mira-face" id="miraSurprised" src="./assets/mira-surprised.png" alt="" draggable="false">
+          <img class="mira-layer mira-eyes" id="miraBlink" src="./assets/mira-blink.png" alt="" draggable="false">
+          <img class="mira-layer mira-mouth" id="miraMouth" src="./assets/mira-speaking.png" alt="" draggable="false">
+        </div>
         <button class="hotspot window" data-action="WINDOW" aria-label="观察窗户"><span>窗户 <small>观察窗外</small></span></button>
         <button class="hotspot photo" data-action="PHOTO" aria-label="查看照片"><span>照片 <small>查看线索</small></span></button>
         <button class="hotspot door" data-action="DOOR" aria-label="检查房门"><span>房门 <small>检查房门</small></span></button>
